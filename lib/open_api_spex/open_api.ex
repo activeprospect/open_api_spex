@@ -76,6 +76,7 @@ defmodule OpenApiSpex.OpenApi do
     x-struct
     x-validate
     x-parameter-content-parsers
+    x-tagGroups
   )
 
   def json_encoder, do: @json_encoder
