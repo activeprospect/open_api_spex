@@ -303,7 +303,7 @@ defmodule OpenApiSpex do
       body
       |> Map.delete(:__struct__)
       |> update_in([:"x-struct"], fn struct_module ->
-        if Keyword.get(opts, :struct?, true) do
+        if Keyword.get(opts, :struct?, false) do
           struct_module || module
         else
           struct_module
