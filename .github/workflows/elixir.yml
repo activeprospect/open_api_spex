@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        otp: ["26"]
-        elixir: ["1.16"]
+        otp: ["28"]
+        elixir: ["1.19"]
     steps:
       - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
@@ -31,6 +31,7 @@ jobs:
           path: |
             priv/plts
       - run: mix deps.get
+      - run: mix deps.compile
       - run: mix compile --warnings-as-errors
       - run: mix format --check-formatted
       - run: mix credo --strict --all
@@ -47,8 +48,8 @@ jobs:
       - uses: erlef/setup-beam@v1
         id: beam
         with:
-          otp-version: 26
-          elixir-version: 1.16
+          otp-version: 28
+          elixir-version: 1.19
       - uses: actions/cache@v4
         with:
           key: |
@@ -67,16 +68,18 @@ jobs:
     name: Test (OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}})
     strategy:
       matrix:
-        otp: ["24", "25", "26"]
-        elixir: ["1.14", "1.15", "1.16", "1.18"]
+        otp: ["26", "27", "28"]
+        elixir: ["1.16", "1.17", "1.18", "1.19"]
         # Test each elixir version with lowest and highest compatible OTP version, exclude others
         # See https://hexdocs.pm/elixir/compatibility-and-deprecations.html#between-elixir-and-erlang-otp
         exclude:
-          - { otp: "24", elixir: "1.14" }
-          - { otp: "24", elixir: "1.18" }
-          - { otp: "25", elixir: "1.14" }
-          - { otp: "25", elixir: "1.15" }
-          - { otp: "25", elixir: "1.16" }
+          # Elixir 1.16 supports OTP 24–26 only
+          - { otp: "27", elixir: "1.16" }
+          - { otp: "28", elixir: "1.16" }
+          # Elixir 1.17 supports OTP 26–27 only
+          - { otp: "28", elixir: "1.17" }
+          # Elixir 1.18 supports OTP 25–27 only
+          - { otp: "28", elixir: "1.18" }
     steps:
       - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
