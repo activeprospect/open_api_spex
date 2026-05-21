@@ -6,7 +6,7 @@ defmodule OpenApiSpex.Cast.AllOf do
 
   def cast(ctx), do: cast_all_of(ctx, nil)
 
-  defp cast_all_of(%{schema: %{allOf: [%Schema{} = schema | remaining]}} = ctx, acc) do
+  defp cast_all_of(%Cast{schema: %{allOf: [%Schema{} = schema | remaining]}} = ctx, acc) do
     relaxed_schema = %{schema | "x-struct": nil}
     new_ctx = put_in(ctx.schema.allOf, remaining)
 
@@ -23,7 +23,7 @@ defmodule OpenApiSpex.Cast.AllOf do
 
       {:error, errors} ->
         Cast.error(
-          %Cast{ctx | errors: ctx.errors ++ errors},
+          %{ctx | errors: ctx.errors ++ errors},
           {:all_of, to_string(relaxed_schema.title || relaxed_schema.type)}
         )
     end
@@ -34,14 +34,14 @@ defmodule OpenApiSpex.Cast.AllOf do
     cast_all_of(%{ctx | schema: %{schema | allOf: [nested_schema | remaining]}}, result)
   end
 
-  defp cast_all_of(%{schema: %{allOf: []}, errors: []} = ctx, acc) do
+  defp cast_all_of(%{schema: %{allOf: [], "x-struct": module}, errors: []} = ctx, acc)
+       when not is_nil(module) do
     with :ok <- Utils.check_required_fields(ctx, acc) do
-      {:ok, acc}
+      {:ok, struct(module, acc)}
     end
   end
 
-  defp cast_all_of(%{schema: %{allOf: [], errors: [], "x-struct": module}} = ctx, acc)
-       when not is_nil(module) do
+  defp cast_all_of(%{schema: %{allOf: []}, errors: []} = ctx, acc) do
     with :ok <- Utils.check_required_fields(ctx, acc) do
       {:ok, acc}
     end
