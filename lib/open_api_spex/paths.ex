@@ -69,6 +69,7 @@ defmodule OpenApiSpex.Paths do
           do: {path, verb, operation}
 
     all_operations
+    |> Enum.sort_by(fn {path, verb, _op} -> {path, verb} end)
     |> Enum.group_by(fn {_path, _verb, operation} -> operation.operationId end)
     |> Enum.filter(fn
       {_operation_id, [_item]} -> false
