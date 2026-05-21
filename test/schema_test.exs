@@ -103,8 +103,23 @@ defmodule OpenApiSpex.SchemaTest do
       assert Schema.example(%Schema{type: :string, example: "foo"}) == "foo"
     end
 
+    test "uses the first value in `examples` property when not nil" do
+      assert Schema.example(%Schema{type: :string, examples: ["foo", "bar"]}) == "foo"
+    end
+
     test "defaults to type-appropriate value for :string" do
       assert Schema.example(%Schema{type: :string}) == ""
+    end
+
+    test "defaults to type-appropriate value for :string with a minLength" do
+      assert Schema.example(%Schema{type: :string, minLength: 1}) == "a"
+      assert Schema.example(%Schema{type: :string, minLength: 2}) == "ab"
+      assert Schema.example(%Schema{type: :string, minLength: 3}) == "abc"
+      assert Schema.example(%Schema{type: :string, minLength: 4}) == "abcd"
+      assert Schema.example(%Schema{type: :string, minLength: 5}) == "abcde"
+      assert Schema.example(%Schema{type: :string, minLength: 6}) == "abcdef"
+      assert Schema.example(%Schema{type: :string, minLength: 7}) == "example"
+      assert Schema.example(%Schema{type: :string, minLength: 9}) == "exampleex"
     end
 
     test "defaults to type-appropriate value for :integer, :number" do
